@@ -222,32 +222,37 @@ SUBROUTINE IC(gamma_e,Eps,Eps_int,NedEe,Kappa,Tst,ang,L_IC,L_unabs)
    real(dp), intent(out) :: L_IC(mE_f),L_unabs
    real(dp) :: Tmcc,Tmcc_ang,Tmcc_ang2,x0_K,z_ic,t_ic
    real(dp) :: dEps,Ndot,sum,cte_Ndot_ani
-
+   real(dp) :: P_eps_local,dP_eps_local
+   integer :: i_ic,j_ic
    Tmcc = k*Tst/mec2
    Tmcc_ang = Tmcc*(1.-cos(ang))
    Tmcc_ang2 = Tmcc_ang*2.d0
    cte_Ndot_ani = cte_Ndot*Tmcc**2*Kappa
 
    L_unabs = 0.d0
-   do i=1,mE_f              ! Ef (emitted photons)
-      dEps=Eps(i)*(Eps_int-1.d0)
+   !$omp parallel do default(none) reduction(+:L_unabs) schedule(static) &
+   !$omp& shared(Eps,gamma_e,Eps_int,NedEe,cte_Ndot_ani,Tmcc_ang2,L_IC) &
+   !$omp& private(i_ic,j_ic,dEps,sum,z_ic,t_ic,x0_K,Ndot,P_eps_local,dP_eps_local)
+   do i_ic=1,mE_f           ! Ef (emitted photons)
+      dEps=Eps(i_ic)*(Eps_int-1.d0)
       sum=0.d0
 
-      do j=1,mE_e           ! Ee
-         z_ic = Eps(i)/gamma_e(j)
+      do j_ic=1,mE_e        ! Ee
+         z_ic = Eps(i_ic)/gamma_e(j_ic)
          if (z_ic < 1.d0) then
-            t_ic = gamma_e(j)*Tmcc_ang2
+            t_ic = gamma_e(j_ic)*Tmcc_ang2
             x0_K = z_ic/( (1.-z_ic)*t_ic )
-            Ndot = (cte_Ndot_ani/gamma_e(j)**2) * ( (z_ic**2/(2.*(1.-z_ic)))*F_1(x0_K) + F_2(x0_K) )
-            P_eps = Eps(i) * Ndot      ! N^dot = nf*c*dsigmaIC
-            dP_eps = P_eps * NedEe(j)  ! P_eps*Ne(Ee)*dEe
-            sum = dP_eps + sum
+            Ndot = (cte_Ndot_ani/gamma_e(j_ic)**2) * ( (z_ic**2/(2.*(1.-z_ic)))*F_1(x0_K) + F_2(x0_K) )
+            P_eps_local = Eps(i_ic) * Ndot   ! N^dot = nf*c*dsigmaIC
+            dP_eps_local = P_eps_local * NedEe(j_ic)  ! P_eps*Ne(Ee)*dEe
+            sum = dP_eps_local + sum
          end if
       end do
 
-      L_IC(i) = sum                    ! Especific luminosity (plot E(j)*LIC(Ej))
+      L_IC(i_ic) = sum                 ! Especific luminosity (plot E(j)*LIC(Ej))
       L_unabs = L_unabs + sum*dEps*mec2
-   end do
+    end do
+   !$omp end parallel do
 
 end SUBROUTINE IC
 
