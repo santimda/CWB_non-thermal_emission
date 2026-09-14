@@ -100,6 +100,10 @@ module opacity_gg
       enddo
     enddo
 
+    !$omp parallel do default(none) schedule(static) &
+    !$omp& shared(Ef,Eps0_max,cte_sigma_gg,Cnumc2,dil,mu_factor,dr,tau_gg,zT) &
+    !$omp& private(iang,ir,ie0,Eps0_min_factor,Eps0_min,Eps_int,Eps0, &
+    !$omp& dEps_int,nu0,Bb,nbmc2,nst,xe,Be,sigma_gg,sum,tau,f)
     do ie=1,mE_gg
       Eps0_min_factor = 1.d0/Ef(ie)/0.5d0
 
@@ -144,6 +148,7 @@ module opacity_gg
       enddo
 
     enddo
+    !$omp end parallel do
 
     return
     

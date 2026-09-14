@@ -165,14 +165,15 @@ contains
       real(dp), intent(in) :: Hs,FI(N)
       real(dp), intent(out) :: S
       real(dp) :: S0,S1,S2
+      integer :: i_int
       S  = 0.d0
       S0 = 0.d0
       S1 = 0.d0
       S2 = 0.d0
-      DO I = 2, N-1, 2
-         S1 = S1 + FI(I-1)
-         S0 = S0 + FI(I)
-         S2 = S2 + FI(I+1)
+      DO i_int = 2, N-1, 2
+         S1 = S1 + FI(i_int-1)
+         S0 = S0 + FI(i_int)
+         S2 = S2 + FI(i_int+1)
       END DO
       S = Hs*(S1 + 4.*S0 + S2)/3.d0
       ! If N is even, add the last slice separately
