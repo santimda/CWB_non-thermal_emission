@@ -1,0 +1,13 @@
+{
+  "synchrotron_unabsorbed": [6.17e30, 4.02e30],
+  "synchrotron_ssa": [6.17e30, 4.02e30],
+  "ic_unabsorbed": [5.41e32, 4.45e32, 5.13e32, 4.21e32, 4.57e32, 3.73e32, 4.30e32, 3.49e32],
+  "ic_absorbed": [5.40e32, 4.44e32, 5.12e32, 4.20e32, 4.57e32, 3.73e32, 4.29e32, 3.49e32],
+  "bremsstrahlung": [4.90e26, 1.16e27, 4.90e26, 1.16e27, 4.90e26, 1.16e27, 4.90e26, 1.16e27],
+  "thermal_bolometric": [2.99e32, 1.72e32],
+  "unabsorbed_flux": [2.55e-13, 3.06e-13, 3.04e-12, 6.72e-14],
+  "absorbed_flux": [2.55e-13, 3.06e-13, 3.03e-12, 6.28e-14],
+  "radio_flux": [1.12e2, 1.12e2],
+  "star1_free_free": [3.07e-1],
+  "star2_free_free": [6.75e-2]
+}

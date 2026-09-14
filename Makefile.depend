@@ -1,0 +1,45 @@
+build/controls.o: controls.f90
+
+build/constants.o: constants.f90
+
+build/system_parameters.o: system_parameters.f90 build/constants.o
+
+build/global.o: global.f90 build/constants.o build/system_parameters.o build/controls.o
+
+build/initialize.o: initialize.f90 build/global.o
+
+build/orbit.o: orbit.f90 build/global.o
+
+build/CD.o: CD.f90 build/global.o
+
+build/CD_thermo.o: CD_thermo.f90 build/global.o
+
+build/opac_ff.o: opac_ff.f90 build/global.o
+
+build/opac_gg.o: opac_gg.f90 build/global.o
+
+build/BB.o: BB.f90 build/global.o
+
+build/WCR_thermal.o: WCR_thermal.f90 build/global.o
+
+build/CD_dist_e.o: CD_dist_e.f90 build/global.o
+
+build/CD_rot.o: CD_rot.f90 build/global.o
+
+build/CD_rad_syn.o: CD_rad_syn.f90 build/global.o
+
+build/CD_rad_ic.o: CD_rad_ic.f90 build/global.o
+
+build/CD_rad_br.o: CD_rad_br.f90 build/global.o
+
+build/CD_abssyn.o: CD_abssyn.f90 build/CD_rad_syn.o build/opac_ff.o build/global.o
+
+build/CD_dist_p.o: CD_dist_p.f90 build/global.o
+
+build/CD_rad_pp.o: CD_rad_pp.f90 build/global.o
+
+build/fluxes.o: fluxes.f90 build/global.o
+
+build/WCR_conv.o: WCR_conv.f90 build/global.o
+
+build/main.o: main.f90 build/global.o build/controls.o build/initialize.o build/orbit.o build/BB.o build/WCR_thermal.o build/CD.o build/CD_thermo.o build/CD_dist_e.o build/opac_ff.o build/CD_rad_syn.o build/opac_gg.o build/CD_rot.o build/CD_rad_ic.o build/CD_rad_br.o build/CD_abssyn.o build/CD_dist_p.o build/CD_rad_pp.o build/fluxes.o build/WCR_conv.o
