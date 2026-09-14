@@ -55,8 +55,8 @@ contains
       end do
       close(25)
 
-       open (31,file=output_file('emi_syn1.dat'))
-       open (32,file=output_file('emi_syn2.dat'))
+      open (31,file=output_file('emi_syn1.dat'))
+      open (32,file=output_file('emi_syn2.dat'))
       do l=1,ml
          do i=1,mnu
             read(31,*) nl,Ef(i),dummy,Lsy1(l,i)
