@@ -201,7 +201,7 @@ END module opac_ff
     implicit none
     character, intent(in) :: number
     real(dp),intent(in) :: nu_ff(mE_ff),D
-    integer, parameter :: ir_max = 300   ! steps in integration in r
+    integer, parameter :: ir_max = 600   ! steps in integration in r
     real(dp) :: Mdot,Mdot_eff,vinf,Rst,T_w,mu_w,Zq_w,gamma_w
     real(dp) :: g_ff(mE_ff),S(mE_ff)
     real(dp) :: alpha_ff,cte_alpha_ff,cte_nu,dr,A_ff,ne,ni
@@ -261,6 +261,9 @@ END module opac_ff
 
     dang = pi/m_ang_ff
     dr = Rst/32.d0    ! step for integration: R_final ~ Rstar + Rstar*ir_max/16*cos(ang)
+    !$omp parallel do default(none) schedule(static) &
+    !$omp& shared(nu_ff,g_ff,dr,dang,A_ff,gamma_w,cte_alpha_ff,Rst,tau_ff,T_w) &
+    !$omp& private(iang,ir,ang,cte_nu,cang,sang,xi,yi,ri,ni,ne,alpha_ff,f,tau)
     do ie=1,mE_ff      ! loop in emitted photon energy: Ef(ie) = h*nu_ff(ie)
       ang = dang/2.d0  ! initial angle
       cte_nu = nu_ff(ie)**(-3)*(1.d0-exp(-h*nu_ff(ie)/k/T_w))*g_ff(ie)
@@ -286,6 +289,7 @@ END module opac_ff
         ang=ang+dang
       end do
     end do
+    !$omp end parallel do
 
     open (88,file=output_file('opac_ff'//number//'.dat'))
     do i=1,mE_ff
@@ -449,7 +453,10 @@ END module opac_ff
     call gaunt_ff_calc(nu_ff,T_w,Zq_w,g_ff)
 
     dang = pi/m_ang_ff
-    dr = Rst/32.d0    ! step for integration: R_final ~ Rstar + Rstar*ir_max/16*cos(ang)
+    dr = Rst/64.d0    ! step for integration: R_final ~ Rstar + Rstar*ir_max/16*cos(ang)
+    !$omp parallel do default(none) schedule(static) &
+    !$omp& shared(nu_ff,g_ff,dr,dang,A_ff,gamma_w,cte_alpha_ff,Rst,tau_ff,T_w) &
+    !$omp& private(iang,ir,ang,cte_nu,cang,sang,xi,yi,ri,ni,ne,alpha_ff,f,tau)
     do ie=1,mnu_data      ! loop in emitted photon energy: Ef(ie) = h*nu_ff(ie)
       ang = dang/2.d0  ! initial angle
       cte_nu = nu_ff(ie)**(-3)*(1.d0-exp(-h*nu_ff(ie)/k/T_w))*g_ff(ie)
@@ -474,6 +481,7 @@ END module opac_ff
         ang=ang+dang
       end do
     end do
+!$omp end parallel do
 
     open (88,file=output_file('opac_ff_data'//number//'.dat'))
     do i=1,mnu_data
