@@ -96,8 +96,8 @@ def load_observations():
 def load_model_seds():
     syn_paths = sorted(RESULTS.glob("rad_syn_WCR_M*.dat"))
     ff_paths = sorted(RESULTS.glob("windemiff_M*.dat"))
-    if len(syn_paths) != 6 or len(ff_paths) != 6:
-        raise RuntimeError("Expected six synchrotron and six free-free Mdot SEDs")
+    if len(syn_paths) != len(ff_paths):
+        raise RuntimeError("Expected the same number of synchrotron and free-free SEDs")
 
     mdots = [float(path.stem.split("_M")[-1]) for path in syn_paths]
     seds_syn = [read_sed(path) for path in syn_paths]
@@ -115,9 +115,26 @@ def load_model_seds():
         ff_at_syn_frequency = power_law(
             sed_syn[0], *parameters, reference_frequency=1.0
         )
-        seds_total.append(sed_syn[1] + ff_at_syn_frequency)
+        seds_total.append((sed_syn[0], sed_syn[1] + ff_at_syn_frequency))
 
     return mdots, seds_syn, seds_ff, seds_total
+
+
+def print_reduced_chi2(data, mdots, seds_total):
+    """Print reduced chi-squared values for the plotted total models."""
+    nu_obs = data["nu"].to_numpy()
+    S_obs = data["flux"].to_numpy()
+    S_obs_err = data["flux_err"].to_numpy()
+    dof = len(data) - 2  # 2 free parameters (Mdot and eta_B)
+
+    for mdot, (nu_model, total_flux) in zip(mdots, seds_total):
+        S_model = 10.0 ** np.interp(
+            np.log10(nu_obs),
+            np.log10(nu_model),
+            np.log10(total_flux),
+        )
+        chi2 = np.sum(((S_obs - S_model) / S_obs_err) ** 2)
+        print(f"Mdot1={mdot:.1f}e-5 Msun/yr, reduced chi2={chi2 / dof:.2f}")
 
 
 def make_figure(data, mdots, seds_syn, seds_ff, seds_total):
@@ -137,7 +154,7 @@ def make_figure(data, mdots, seds_syn, seds_ff, seds_total):
     scalar_map = plt.cm.ScalarMappable(norm=norm, cmap=color_map)
 
     for index in range(count):
-        axis.plot(seds_syn[index][0], seds_total[index], color=colors[index], linewidth=2)
+        axis.plot(seds_total[index][0], seds_total[index][1], color=colors[index], linewidth=2)
         axis.plot(seds_ff[index][:, 0], seds_ff[index][:, 1], ":", color=colors[index], alpha=0.7)
     axis.plot(seds_syn[-1][0], seds_syn[-1][1], "--", color=colors[-1], alpha=0.6)
 
@@ -192,6 +209,7 @@ def main():
     data = load_observations()
     print_observed_spectral_indices(data)
     mdots, seds_syn, seds_ff, seds_total = load_model_seds()
+    print_reduced_chi2(data, mdots, seds_total)
     make_figure(data, mdots, seds_syn, seds_ff, seds_total)
     print(f"Wrote {RESULTS / 'SEDs_Mdot.pdf'}")
 
