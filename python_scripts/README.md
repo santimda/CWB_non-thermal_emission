@@ -36,7 +36,8 @@ is not installed.
    ```
 
    The script prints the fitted spectral indices for the ALMA B3, B6, and B7
-   bands, then reads the scan outputs and observational data and writes
+   bands, prints the reduced chi-squared for each Mdot model using the plotted
+   radio data and total uncertainties, then writes
    `python_scripts/results/SEDs_Mdot.pdf`.
 
 4. Plot the absorbed, beam-convolved radio maps:
