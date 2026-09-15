@@ -21,6 +21,8 @@ For additional details of the model we refer to del Palacio, S., et al. 2016, A&
 
 The modular code is written in Fortran 90, compiled with *Make*, and run as `./run.x`. The default build uses BLAS and LAPACK. Runtime-generated data files are written to `output/`. The tracked root-level `gauntff.dat` is a fixed input table required for free-free processes; it is never generated or overwritten by the build. This table was downloaded externally from van Hoof et al. (2014), MNRAS, 444, 420 (ADS link: https://ui.adsabs.harvard.edu/abs/2014MNRAS.444..420V/abstract). Generated files can be safely removed using `make clean`. Additional python and gnuplot scripts are provided to make diagnostic and publication-ready plots. 
 
+The code is partially parallelized with OpenMP; local benchmarking shows an approximately 1.5x speedup for the default four-thread setup (`nth=4` in `global.f90`).
+
 The default configuration uses a single reference epoch and the parameter values in `system_parameters.f90`. The code provides a command to reproduce the scientific results for the Apep system presented in del Palacio et al. 2026 (submitted). Some further details of each code are given below.
 
 
