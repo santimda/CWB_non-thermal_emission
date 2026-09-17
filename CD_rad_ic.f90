@@ -2,7 +2,11 @@ module CD_rad_ic
    use global
    implicit none
    
-   public :: CD_rad_ic_run, vec_Eic
+   private
+   public :: CD_rad_ic_run, vec_Eic, initialize_ic_lookup, finalize_ic_lookup
+   public :: lookup_ic_functions
+
+   real(dp), allocatable :: ic_lookup_f1(:), ic_lookup_f2(:)
 
    contains
 
@@ -203,6 +207,50 @@ module CD_rad_ic
 
    END subroutine vec_Eic
 
+   !============================================================================
+
+   subroutine initialize_ic_lookup()
+      integer :: i_lookup
+      real(dp), allocatable :: xlookup(:)
+      real(dp) :: xlookup_int
+
+      if (allocated(ic_lookup_f1)) return
+
+      allocate(ic_lookup_f1(n_ic_lookup), ic_lookup_f2(n_ic_lookup))
+      allocate(xlookup(n_ic_lookup))
+      call vector_log(ic_lookup_min,ic_lookup_max,xlookup_int,xlookup)
+      do i_lookup = 1,n_ic_lookup
+         ic_lookup_f1(i_lookup) = F_1(xlookup(i_lookup))
+         ic_lookup_f2(i_lookup) = F_2(xlookup(i_lookup))
+      end do
+      deallocate(xlookup)
+   end subroutine initialize_ic_lookup
+
+   subroutine finalize_ic_lookup()
+      if (allocated(ic_lookup_f1)) deallocate(ic_lookup_f1,ic_lookup_f2)
+   end subroutine finalize_ic_lookup
+
+   subroutine lookup_ic_functions(x0, f1_value, f2_value)
+      real(dp), intent(in) :: x0
+      real(dp), intent(out) :: f1_value, f2_value
+      real(dp) :: log_x0
+      integer :: i_lookup
+
+      if (x0 <= ic_lookup_min) then
+         i_lookup = 1
+      else if (x0 >= ic_lookup_max) then
+         i_lookup = n_ic_lookup
+      else
+         log_x0 = log(x0)
+         i_lookup = nint((n_ic_lookup - 1.d0) * &
+                     (log_x0 - log_ic_lookup_min) / &
+                     (log_ic_lookup_max - log_ic_lookup_min)) + 1
+      end if
+
+      f1_value = ic_lookup_f1(i_lookup)
+      f2_value = ic_lookup_f2(i_lookup)
+   end subroutine lookup_ic_functions
+
    !================================================================
 
 END module CD_rad_ic
@@ -216,11 +264,13 @@ SUBROUTINE IC(gamma_e,Eps,Eps_int,NedEe,Kappa,Tst,ang,L_IC,L_unabs)
    ! Calculate anisotropic IC emission from interactions with BB photon field,
    ! using the formalism of Khangulyan+ 2014 and precomputed energy-grid terms.
    use global
+   use CD_rad_ic, only: lookup_ic_functions
    implicit none
    real(dp), intent(in) :: gamma_e(mE_e),Eps(mE_f),Eps_int,NedEe(mE_e)
    real(dp), intent(in) :: Kappa,Tst,ang
    real(dp), intent(out) :: L_IC(mE_f),L_unabs
    real(dp) :: Tmcc,Tmcc_ang,Tmcc_ang2,x0_K,z_ic,t_ic
+   real(dp) :: F1_value,F2_value
    real(dp) :: dEps,Ndot,sum,cte_Ndot_ani
    real(dp) :: P_eps_local,dP_eps_local
    integer :: i_ic,j_ic
@@ -232,7 +282,7 @@ SUBROUTINE IC(gamma_e,Eps,Eps_int,NedEe,Kappa,Tst,ang,L_IC,L_unabs)
    L_unabs = 0.d0
    !$omp parallel do default(none) reduction(+:L_unabs) schedule(static) &
    !$omp& shared(Eps,gamma_e,Eps_int,NedEe,cte_Ndot_ani,Tmcc_ang2,L_IC) &
-   !$omp& private(i_ic,j_ic,dEps,sum,z_ic,t_ic,x0_K,Ndot,P_eps_local,dP_eps_local)
+   !$omp& private(i_ic,j_ic,dEps,sum,z_ic,t_ic,x0_K,Ndot,F1_value,F2_value,P_eps_local,dP_eps_local)
    do i_ic=1,mE_f           ! Ef (emitted photons)
       dEps=Eps(i_ic)*(Eps_int-1.d0)
       sum=0.d0
@@ -242,7 +292,9 @@ SUBROUTINE IC(gamma_e,Eps,Eps_int,NedEe,Kappa,Tst,ang,L_IC,L_unabs)
          if (z_ic < 1.d0) then
             t_ic = gamma_e(j_ic)*Tmcc_ang2
             x0_K = z_ic/( (1.-z_ic)*t_ic )
-            Ndot = (cte_Ndot_ani/gamma_e(j_ic)**2) * ( (z_ic**2/(2.*(1.-z_ic)))*F_1(x0_K) + F_2(x0_K) )
+            call lookup_ic_functions(x0_K,F1_value,F2_value)
+            Ndot = (cte_Ndot_ani/gamma_e(j_ic)**2) * &
+                   ( (z_ic**2/(2.*(1.-z_ic)))*F1_value + F2_value )
             P_eps_local = Eps(i_ic) * Ndot   ! N^dot = nf*c*dsigmaIC
             dP_eps_local = P_eps_local * NedEe(j_ic)  ! P_eps*Ne(Ee)*dEe
             sum = dP_eps_local + sum

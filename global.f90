@@ -77,6 +77,11 @@ module global
    real(dp) :: Kappa1,Kappa2 ! = (R/2D)**2
    real(dp), parameter :: cte_Ndot = 2.*re**2*mec2**3/(pi*h_bar**3*c**2)
    logical, parameter :: ani = .True., iso = .False.     ! IC interaction regime
+   integer, parameter :: n_ic_lookup = 4000
+   real(dp), parameter :: ic_lookup_min = 1.d-7
+   real(dp), parameter :: ic_lookup_max = 2.d3
+   real(dp), parameter :: log_ic_lookup_min = log(ic_lookup_min)
+   real(dp), parameter :: log_ic_lookup_max = log(ic_lookup_max)
 
    ! br
    real(dp), dimension(:), allocatable :: Lbr,Lbr_tot,Lbr_tot_abs

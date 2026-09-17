@@ -113,7 +113,7 @@ subroutine sed_all()
    use CD_rad_syn, only: CD_rad_syn_run, vec_nu
    use opac_ff, only: opac_ff_run
    use opacity_gg, only: opacity_gg_run
-   use CD_rad_ic, only: CD_rad_ic_run, vec_Eic
+   use CD_rad_ic, only: CD_rad_ic_run, vec_Eic, initialize_ic_lookup, finalize_ic_lookup
    use CD_rad_br, only: CD_rad_br_run, vec_Ebr
    use CD_abssyn, only: CD_abssyn_run
    use CD_dist_p, only: CD_dist_p_run
@@ -211,6 +211,9 @@ subroutine sed_all()
 
       ! Anisotropic IC emission, and FFA and g-g abs depend on the orientation
       phi = 0.d0     ! phi = Azimuthal angle 
+
+      ! Pre-compute the functions used in IC
+      if (rad_ic1 .OR. rad_ic2) call initialize_ic_lookup()
       DO i_phi = 1,mphi
          print *, 'i(phi)=',i_phi,'/',mphi
 
@@ -281,6 +284,7 @@ subroutine sed_all()
          phi = phi + delta_phi
 
       END DO
+      if (rad_ic1 .OR. rad_ic2) call finalize_ic_lookup()
 
       if (maps) then
          do i_map = 1, n_map_freq
