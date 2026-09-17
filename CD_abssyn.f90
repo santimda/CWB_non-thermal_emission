@@ -40,9 +40,6 @@ contains
       cinc = cos(incli)
       tinc = tan(incli)
 
-      ! set omp threads number
-      ! $ call omp_set_num_threads(nth)  
-
       ! Calculate total opacity at each location for different photon energies
 
       call total_tau_calc(D,incli,tau_ff)
