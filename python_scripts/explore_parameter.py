@@ -105,6 +105,11 @@ def main():
         controls = set_control(controls, "rad_ic2", "off")
         controls = set_control(controls, "absgg", "off")
         controls = set_control(controls, "protons", "off")
+        controls = set_control(controls, "rad_syn1", "on")
+        controls = set_control(controls, "rad_syn2", "on")
+        controls = set_control(controls, "abssyn", "on")
+        controls = set_control(controls, "maps", "on")
+        controls = set_control(controls, "convolve", "on")
         CONTROLS.write_text(controls)
 
         for mdot in MDOTS:

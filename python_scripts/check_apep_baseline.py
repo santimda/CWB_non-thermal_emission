@@ -8,6 +8,7 @@ Check the default Apep model against observational constraints.
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -30,9 +31,23 @@ def set_control(text, name, value):
 # Build and execute the current model, returning its terminal output.
 def run_model():
     subprocess.run(["make", "run.x"], cwd=ROOT, check=True)
-    return subprocess.run(
-        ["./run.x"], cwd=ROOT, check=True, capture_output=True, text=True
-    ).stdout
+    command = ["./run.x"]
+    try:
+        return subprocess.run(
+            command, cwd=ROOT, check=True, capture_output=True, text=True
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        print(
+            f"Command failed with exit status {error.returncode}: {' '.join(command)}",
+            file=sys.stderr,
+        )
+        if error.stdout:
+            print("--- stdout ---", file=sys.stderr)
+            print(error.stdout, file=sys.stderr, end="")
+        if error.stderr:
+            print("--- stderr ---", file=sys.stderr)
+            print(error.stderr, file=sys.stderr, end="")
+        raise
 
 
 # Extract the first numeric value matched by a regular expression.
@@ -54,6 +69,11 @@ def main():
         controls = set_control(controls, "absgg", "on")
         controls = set_control(controls, "rad_ic1", "on")
         controls = set_control(controls, "rad_ic2", "on")
+        controls = set_control(controls, "rad_syn1", "on")
+        controls = set_control(controls, "rad_syn2", "on")
+        controls = set_control(controls, "abssyn", "on")
+        controls = set_control(controls, "maps", "on")
+        controls = set_control(controls, "convolve", "on")
         CONTROLS.write_text(controls)
         baseline_output = run_model()
     finally:
