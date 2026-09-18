@@ -7,6 +7,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
@@ -48,6 +49,26 @@ def values(pattern, output):
     return [float(value) for match in matches for value in (match if isinstance(match, tuple) else (match,))]
 
 
+def run_checked(command, cwd):
+    try:
+        return subprocess.run(
+            command,
+            cwd=cwd,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as error:
+        print(f"Command failed with exit status {error.returncode}: {' '.join(error.cmd)}", file=sys.stderr)
+        if error.stdout:
+            print("--- stdout ---", file=sys.stderr)
+            print(error.stdout, file=sys.stderr, end="")
+        if error.stderr:
+            print("--- stderr ---", file=sys.stderr)
+            print(error.stderr, file=sys.stderr, end="")
+        raise
+
+
 def main():
     reference = json.loads(REFERENCE.read_text())
     with tempfile.TemporaryDirectory(prefix="cwb-regression-") as temporary_directory:
@@ -60,20 +81,8 @@ def main():
         for filename in ("controls.f90", "system_parameters.f90", "global.f90"):
             shutil.copy2(CONFIGURATION / filename, test_root / filename)
 
-        subprocess.run(
-            ["make"],
-            cwd=test_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        result = subprocess.run(
-            ["./run.x"],
-            cwd=test_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        run_checked(["make"], test_root)
+        result = run_checked(["./run.x"], test_root)
 
     failures = []
     for name, pattern in PATTERNS.items():
