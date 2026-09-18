@@ -21,11 +21,11 @@ module global
    integer, parameter :: ml_2 = ml/2   ! used for the upper side of the CD
    integer, parameter :: mE_e = 220    ! energy resolution for the electron distribution
    integer, parameter :: mE_p = 200    ! energy resolution for the proton distribution
-   integer, parameter :: mphi = 12     ! number of linear-emitters (without mirroring)
+   integer, parameter :: mphi = 20     ! number of linear-emitters (without mirroring)
    real(dp) :: delta_phi = (pi/2.d0)/(mphi-1.d0) ! angular separation between linear-emitters
    real(dp) :: d_phi = (pi/4.d0)/mphi  ! angular width of each linear-emitter or wedge
    integer, parameter :: m_orb = 1     ! number of orbital phases
-   integer, parameter :: mnu = 800     ! resolution in photon frequency nu (for synchrotron)
+   integer, parameter :: mnu = 900     ! resolution in photon frequency nu (for synchrotron)
    integer, parameter :: mE_f = 440    ! resolution in photon energy (IC, brem, p-p)
    integer, parameter :: N_bands = 6   ! number of flux bands
 
@@ -47,7 +47,7 @@ module global
 
    ! non-thermal particle distributions
    real(dp), parameter :: Emin_e = 2.d0*mec2  
-   real(dp), parameter :: Emin_e_inj = 1.5*Emin_e   ! Minimum energy for injected spectrum
+   real(dp), parameter :: Emin_e_inj = 1.7*Emin_e   ! Minimum energy for injected spectrum
    real(dp), parameter :: Estiff_e = 1.d18*eV       ! Possible hardening
    real(dp), parameter :: Emax_e = 1.d14*eV         ! 100 TeV
    real(dp) :: Eint_e,dE_e
