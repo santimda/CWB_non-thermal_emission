@@ -30,9 +30,9 @@ module system_parameters
 
    !----------------------------------------------------------------------------
    ! Non-thermal particles
-   real(dp), parameter :: alpha = 2.45d0       ! spectral index at injection (alpha = -2*alpha_radio + 1, alpha_radio = -0.71, Callingham2018)
-   real(dp), parameter :: alpha2 = 2.42d0      ! spectral index at injection for high energies (not really used)
-   real(dp), parameter :: K_ep = 0.022         ! Fraction L_NT_e/L_NT
+   real(dp), parameter :: alpha = 2.4d0        ! spectral index at injection (alpha = -2*alpha_radio + 1, alpha_radio = -0.71, Callingham2018)
+   real(dp), parameter :: alpha2 = 2.4d0       ! spectral index at injection for high energies (not used)
+   real(dp), parameter :: K_ep = 0.02          ! Fraction L_NT_e/L_NT
 
 
    !----------------------------------------------------------------------------
@@ -48,13 +48,13 @@ module system_parameters
    !----------------------------------------------------------------------------
    ! Primary star (WN)
    real(dp), parameter :: T1 = 86.08d3            ! Zhekov+25; Crowther2007->65kK
-   real(dp), parameter :: Mdot1 = 2.5d-5*M_sun_yr
+   real(dp), parameter :: Mdot1 = 2.5d-5*M_sun_yr ! Reference values: Zhekov+25=4.5e-5, dP+22=3e-5
    real(dp), parameter :: vinf1 = 3350.d5         ! Zhekov+25->3332, Callingham+20->3500
    real(dp), parameter :: T1mcc = k*T1/mec2
    real(dp), parameter :: Rst1 = 6.d0*R_sun       
    real(dp), parameter :: Lst1 = 4.d0*pi*Rst1**2*sigma*T1**4
    !real(dp), parameter :: Lst1 = 10**5.7 * L_sun
-   !real(dp), parameter :: Rst1 = sqrt(Lst1/(4.d0*pi*sigma*T1**4))
+   !real(dp), parameter :: Rst1 = sqrt(Lst1/(4.d0*pi*sigma*T1**4))  ! use if Rst is not known but L and T are
    real(dp), parameter :: v_rot1 = 0.1d0*vinf1     ! Ekstrom for M > 85 Mo, White & Chen 1995 use generic 250 km/s
    real(dp), parameter :: gamma_w1 = 1.0d0         
    real(dp), parameter :: r_A_st1 = 1.0d0          ! r_A/R_st
@@ -69,11 +69,9 @@ module system_parameters
    !----------------------------------------------------------------------------
    ! Secondary star (WC)
    real(dp), parameter :: T2 = 60.14d3            ! Zhekov+25; Crowther2007->60kK
-   !real(dp), parameter :: Rst2 = 14.d0*R_sun     
    real(dp), parameter :: Rst2 = 6.d0*R_sun       
    real(dp), parameter :: vinf2 = 2350.d5         ! Zhekov+25->2374, Callingham+->2200
-   real(dp), parameter :: Mdot2 = Mdot1*(vinf1/vinf2)*eta ! using eta 
-   !real(dp), parameter :: Mdot2 = 1.3d-5*M_sun_yr ! Zhekov+25->1.3e-5, delPalacio+->2e-5; trying to keep eta~0.44
+   real(dp), parameter :: Mdot2 = Mdot1*(vinf1/vinf2)*eta ! Derive Mdot2 using eta 
    real(dp), parameter :: T2mcc = k*T2/mec2
    real(dp), parameter :: Lst2 = 4.d0*pi*Rst2**2*sigma*T2**4
    real(dp), parameter :: v_rot2 = 0.1d0*vinf2     ! rule-of-thumb
@@ -89,12 +87,12 @@ module system_parameters
    !----------------------------------------------------------------------------
    ! Wind-collision region
    real(dp), parameter :: mu_1 = 4.d0/(3.d0 + 5.d0*X_ab1 - Z_ab1) ! mean atomic weight for complete ionization
-   real(dp), parameter :: mu_e1 = 2.d0/(1.d0 + X_ab1)    ! mu_e = 2/(1+X) only for Z=0; mu_e > mu! 
+   real(dp), parameter :: mu_e1 = 2.d0/(1.d0 + X_ab1)             ! mu_e = 2/(1+X) only for Z=0; mu_e > mu
    real(dp), parameter :: mu_i1 = 1.d0/(1.d0/mu_1 - 1.d0/mu_e1)  
    real(dp), parameter :: Zq_1 = 1.23_dp        
    real(dp), parameter :: gamma_1 = 1.34_dp
    real(dp), parameter :: mu_2 = 4.d0/(3.d0 + 5.d0*X_ab2 - Z_ab2) ! mean atomic weight for complete ionization
-   real(dp), parameter :: mu_e2 = 2.d0/(1.d0 + X_ab2)    ! mu_e = 2/(1+X) only for Z=0; mu_e > mu! 
+   real(dp), parameter :: mu_e2 = 2.d0/(1.d0 + X_ab2)             ! mu_e = 2/(1+X) only for Z=0; mu_e > mu! 
    real(dp), parameter :: mu_i2 = 1.d0/(1.d0/mu_2 - 1.d0/mu_e2)   
    real(dp), parameter :: Zq_2 = 1.23_dp        
    real(dp), parameter :: gamma_2 = 1.34_dp
