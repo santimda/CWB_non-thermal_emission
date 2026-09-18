@@ -37,7 +37,7 @@ module system_parameters
 
    !----------------------------------------------------------------------------
    ! Free parameters   
-   real(dp), parameter :: eta_B1 = 5.3d-3, eta_B2 = eta_B1
+   real(dp), parameter :: eta_B1 = 4.9d-3, eta_B2 = eta_B1
    real(dp), parameter :: frac_NT = 2.0d-1
 
    !----------------------------------------------------------------------------
