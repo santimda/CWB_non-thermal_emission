@@ -87,7 +87,6 @@ contains
 
   Function flux_int(N_int,Eph,dEph,Lum,Eph_min,Eph_max)
 
-    use global
     real(dp) :: flux_int
     integer, intent(in) :: N_int
     real(dp), intent(in) :: Eph(N_int),dEph(N_int),Lum(N_int),Eph_min,Eph_max
@@ -113,7 +112,6 @@ contains
 
   Function phflux_int(N_int,Eph,dEph,Lum,Eph_min,Eph_max)
 
-    use global
     real(dp) :: phflux_int
     integer, intent(in) :: N_int
     real(dp), intent(in) :: Eph(N_int),dEph(N_int),Lum(N_int),Eph_min,Eph_max

@@ -1,5 +1,6 @@
 program test_numerical_utilities
-   use global, only: dp, vector_log, integrate
+   use constants, only: dp
+   use numerical_utils, only: vector_log, integrate
    implicit none
 
    real(dp), parameter :: tolerance = 1.d-12

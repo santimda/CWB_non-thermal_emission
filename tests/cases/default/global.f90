@@ -137,56 +137,7 @@ module global
       write(label, '(I0)') int(nu_hz/1.d9)
    end function map_frequency_label
 
-   !============================================================================
-   ! vector_log
-   !============================================================================
-
-   SUBROUTINE vector_log(Vmin,Vmax,Vint,Vvec)
-      ! Build logarithmically-spaced vector
-      integer, parameter :: dp = kind(1.d0)
-      real(dp), intent(in) :: Vmin,Vmax
-      integer :: N_size, i_vec
-      real(dp), intent(out) :: Vint
-      real(dp), intent(out) :: Vvec(:)
-
-      N_size = SIZE(Vvec)
-      Vint = (Vmax/Vmin)**(1.d0/dfloat(N_size-1))
-      Vvec(1) = Vmin
-      do i_vec=2,N_size
-         Vvec(i_vec)=Vvec(i_vec-1)*Vint
-      end do
-
-   END SUBROUTINE vector_log
-
-
-   !============================================================================
-   ! integrate
-   !============================================================================
-
-    SUBROUTINE integrate(N,Hs,FI,S)
-      ! Subroutine for integration over f(x) with the Simpson rule.
-      ! FI: integrand f(x); Hs: interval; S: integral.
-      integer, intent(in) :: N
-      real(dp), intent(in) :: Hs,FI(N)
-      real(dp), intent(out) :: S
-      real(dp) :: S0,S1,S2
-      S  = 0.d0
-      S0 = 0.d0
-      S1 = 0.d0
-      S2 = 0.d0
-      DO I = 2, N-1, 2
-         S1 = S1 + FI(I-1)
-         S0 = S0 + FI(I)
-         S2 = S2 + FI(I+1)
-      END DO
-      S = Hs*(S1 + 4.*S0 + S2)/3.d0
-      ! If N is even, add the last slice separately
-      IF(MOD(N,2).eq.0) S = S + Hs*(5.*FI(N) + 8.*FI(N-1) - FI(N-2))/12.d0
-
-    End SUBROUTINE integrate
-
-
-   !============================================================================
+    !============================================================================
    !  Cooling_IC
 
    Function F_ani(u)  ! Used for anisotropic IC (Khangulyan 2014)
@@ -253,21 +204,7 @@ module global
 
    !============================================================================
 
-    SUBROUTINE unit_vector_diff(V1,V2,N,versor)
-       ! Build the unit vector (V1-V2)/|V1-V2|.
-      real(dp), intent(out) :: versor 
-      real(dp), intent(in) :: V1,V2
-       real(dp) :: difference
-      integer :: N
-       DIMENSION V1(N),V2(N),versor(N),difference(N)
-      do i=1,N
-          difference(i)=V1(i)-V2(i)
-      end do
-       versor=difference/NORM2(difference)
-    END SUBROUTINE unit_vector_diff
-
-    !============================================================================
-    ! Validate shock identifiers used by per-shock routines.
+     ! Validate shock identifiers used by per-shock routines.
 
     subroutine validate_shock_number(number,routine)
        character(len=*), intent(in) :: number, routine

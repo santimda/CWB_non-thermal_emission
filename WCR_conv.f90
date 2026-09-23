@@ -15,7 +15,6 @@ contains
 
   subroutine WCR_conv_run(D_proj,incli,map_nu)
 
-    use global
     implicit none
     real(dp), intent(in) :: D_proj,incli
     real(dp), intent(in) :: map_nu

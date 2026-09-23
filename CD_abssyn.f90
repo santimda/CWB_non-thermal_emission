@@ -1,5 +1,6 @@
 module CD_abssyn
    use global
+   use numerical_utils, only: safe_acos_dot, unit_vector_diff
    implicit none
    
    public :: CD_abssyn_run, CD_abssyn_data_run
@@ -187,6 +188,7 @@ END module CD_abssyn
 
 subroutine total_tau_calc(D,incli,tauff)
    use global
+   use numerical_utils, only: safe_acos_dot, unit_vector_diff
    implicit none
    real(dp), intent(in) :: D,incli
    real(dp), intent(out) :: tauff(ml,mnu)
@@ -235,9 +237,9 @@ subroutine total_tau_calc(D,incli,tauff)
 
       if( incli < theta_inf ) then  ! only wind 2 absorbs
          call unit_vector_diff(Xemi,Xst2,3,XEe) ! XEe vector from the star to the emitter
-         ang2_i = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang2_i = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang2_i = int(m_ang_ff*abs(ang2_i-ang_min)/pi)+1 
-         r2 = sqrt( (D-x(l))**2 + y(l)**2 + z(l)**2 )
+         r2 = norm2(Xemi-Xst2)
          do i = 1, mnu      
             iEf = min(int(log(max(1.d0,nu(i)/nu_min_ff))/log(nu_int_ff)) + 1, mE_ff)
             tauff(l,i) = (Rst2/r2)**3*tau_ff2(iEf,iang2_i)
@@ -245,17 +247,17 @@ subroutine total_tau_calc(D,incli,tauff)
       
       elseif( incli > pi - theta_inf ) then ! only wind 1 absorbs
          call unit_vector_diff(Xemi,Xst1,3,XEe) ! XEe vector from the star to the emitter
-         ang1 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1 
-         r1 = sqrt( x(l)**2 + y(l)**2+z(l)**2 )
+         r1 = norm2(Xemi-Xst1)
          do i = 1, mnu      
             iEf = min(int(log(max(1.d0,nu(i)/nu_min_ff))/log(nu_int_ff)) + 1,mE_ff)
             tauff(l,i) = (Rst1/r1)**3*tau_ff1(iEf,iang1)
          end do  
 
       else    ! depending on location, only wind 1 absorbs or both do
-         r1 = sqrt( x(l)**2 + y(l)**2+z(l)**2 )
-         r2 = sqrt( (D-x(l))**2 + y(l)**2+z(l)**2 )
+         r1 = norm2(Xemi-Xst1)
+         r2 = norm2(Xemi-Xst2)
          dr0 = sh_width*min(r1,r2)
          x1 = x(l)+dr0*cinc
          y1 = y(l)+dr0*sinc
@@ -266,9 +268,9 @@ subroutine total_tau_calc(D,incli,tauff)
 
          if( cond ) then ! moves outside of WCR, only wind 1 absorbs
             call unit_vector_diff(Xemi,Xst1,3,XEe) ! XEe vector from the star to the emitter
-            ang1 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+            ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
             iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1 
-            r1 = sqrt( x(l)**2 + y(l)**2 + z(l)**2 )
+            r1 = norm2(Xemi-Xst1)
             do i = 1, mnu      
                iEf = min(int(log(max(1.d0,nu(i)/nu_min_ff))/log(nu_int_ff)) + 1,mE_ff)
                tauff(l,i) = (Rst1/r1)**3*tau_ff1(iEf,iang1)
@@ -280,19 +282,19 @@ subroutine total_tau_calc(D,incli,tauff)
             ! from XEe to r_cross wind2 absorbs, whereas wind1 from r_cross to "infinity" 
 
             call unit_vector_diff(r_cross,Xst1,3,XEe) ! XEe = unit vector from the star1 to the crossing point
-            ang1 = acos(DOT_PRODUCT(Xobs,XEe))   ! angle between Xobs and XEe
+            ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
             iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1
-            r1 = sqrt( r_cross(1)**2 + r_cross(2)**2 + r_cross(3)**2 )
+            r1 = norm2(r_cross-Xst1)
 
             call unit_vector_diff(Xemi,Xst2,3,XEe)   ! XEe = unit vector from the star2 to the emitter
-            ang2_i = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe_i
+            ang2_i = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe_i
             iang2_i = int(m_ang_ff*abs(ang2_i-ang_min)/pi)+1
-            r2_i = sqrt( (D-x(l))**2 + y(l)**2 + z(l)**2 )
+            r2_i = norm2(Xemi-Xst2)
 
             call unit_vector_diff(r_cross,Xst2,3,XEe) ! XEe = unit vector from the star2 to the crossing point
-            ang2_f = acos(DOT_PRODUCT(Xobs,XEe)) ! angle between Xobs and XEe_f
+            ang2_f = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe_f
             iang2_f = int(m_ang_ff*abs(ang2_f-ang_min)/pi)+1
-            r2_f = sqrt( (D-r_cross(1))**2 + r_cross(2)**2 + r_cross(3)**2 )
+            r2_f = norm2(r_cross-Xst2)
 
             do i=1,mnu     
                iEf = min(int(log(max(1.d0,nu(i)/nu_min_ff))/log(nu_int_ff)) + 1,mE_ff)
@@ -318,6 +320,7 @@ end subroutine total_tau_calc
 
 subroutine total_tau_data_calc(D,incli,tauff)
    use global
+   use numerical_utils, only: safe_acos_dot, unit_vector_diff
    implicit none
    real(dp), intent(in) :: D,incli
    real(dp), intent(out) :: tauff(ml,mnu_data)
@@ -366,25 +369,25 @@ subroutine total_tau_data_calc(D,incli,tauff)
 
       if( incli < theta_inf ) then  ! only wind 2 absorbs
          call unit_vector_diff(Xemi,Xst2,3,XEe) ! XEe vector from the star to the emitter
-         ang2_i = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang2_i = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang2_i = int(m_ang_ff*abs(ang2_i-ang_min)/pi)+1 
-         r2 = sqrt( (D-x(l))**2 + y(l)**2 + z(l)**2 )
+         r2 = norm2(Xemi-Xst2)
          do i = 1, mnu_data      
             tauff(l,i) = (Rst2/r2)**3*tau_ff2(i,iang2_i)
          end do  
       
       elseif( incli > pi - theta_inf ) then ! only wind 1 absorbs
          call unit_vector_diff(Xemi,Xst1,3,XEe) ! XEe vector from the star to the emitter
-         ang1 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1 
-         r1 = sqrt( x(l)**2 + y(l)**2+z(l)**2 )
+         r1 = norm2(Xemi-Xst1)
          do i = 1, mnu_data
             tauff(l,i) = (Rst1/r1)**3*tau_ff1(i,iang1)
          end do  
 
       else    ! depending on location, only wind 1 absorbs or both do
-         r1 = sqrt( x(l)**2 + y(l)**2+z(l)**2 )
-         r2 = sqrt( (D-x(l))**2 + y(l)**2+z(l)**2 )
+         r1 = norm2(Xemi-Xst1)
+         r2 = norm2(Xemi-Xst2)
          dr0 = sh_width*min(r1,r2)
          x1 = x(l)+dr0*cinc
          y1 = y(l)+dr0*sinc
@@ -395,9 +398,9 @@ subroutine total_tau_data_calc(D,incli,tauff)
 
          if( cond ) then ! moves outside of WCR, only wind 1 absorbs
             call unit_vector_diff(Xemi,Xst1,3,XEe) ! XEe vector from the star to the emitter
-            ang1 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+            ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
             iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1 
-            r1 = sqrt( x(l)**2 + y(l)**2 + z(l)**2 )
+            r1 = norm2(Xemi-Xst1)
             do i = 1, mnu_data    
                tauff(l,i) = (Rst1/r1)**3*tau_ff1(i,iang1)
             end do  
@@ -408,19 +411,19 @@ subroutine total_tau_data_calc(D,incli,tauff)
             ! from XEe to r_cross wind2 absorbs, whereas wind1 from r_cross to "infinity" 
 
             call unit_vector_diff(r_cross,Xst1,3,XEe) ! XEe = unit vector from the star1 to the crossing point
-            ang1 = acos(DOT_PRODUCT(Xobs,XEe))   ! angle between Xobs and XEe
+            ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
             iang1 = int(m_ang_ff*abs(ang1-ang_min)/pi)+1
-            r1 = sqrt( r_cross(1)**2 + r_cross(2)**2 + r_cross(3)**2 )
+            r1 = norm2(r_cross-Xst1)
 
             call unit_vector_diff(Xemi,Xst2,3,XEe)   ! XEe = unit vector from the star2 to the emitter
-            ang2_i = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe_i
+            ang2_i = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe_i
             iang2_i = int(m_ang_ff*abs(ang2_i-ang_min)/pi)+1
-            r2_i = sqrt( (D-x(l))**2 + y(l)**2 + z(l)**2 )
+            r2_i = norm2(Xemi-Xst2)
 
             call unit_vector_diff(r_cross,Xst2,3,XEe) ! XEe = unit vector from the star2 to the crossing point
-            ang2_f = acos(DOT_PRODUCT(Xobs,XEe)) ! angle between Xobs and XEe_f
+            ang2_f = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe_f
             iang2_f = int(m_ang_ff*abs(ang2_f-ang_min)/pi)+1
-            r2_f = sqrt( (D-r_cross(1))**2 + r_cross(2)**2 + r_cross(3)**2 )
+            r2_f = norm2(r_cross-Xst2)
 
             do i=1,mnu_data
                tauff(l,i) = ( (Rst2/r2_i)**3*tau_ff2(i,iang2_i) &

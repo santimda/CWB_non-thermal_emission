@@ -1,5 +1,6 @@
 module CD_rad_ic
    use global
+   use numerical_utils, only: safe_acos_dot, unit_vector_diff, vector_log
    implicit none
    
    private
@@ -107,18 +108,18 @@ module CD_rad_ic
 
          !------------------------------------------------------------------------
          ! Star 1
-         d1 = sqrt(Xemi(1)**2+Xemi(2)**2+Xemi(3)**2)
+         d1 = norm2(Xemi-Xst1)
          call unit_vector_diff(Xemi,Xst1,3,XEe)  ! unit vector from 2nd to 1st
-         ang1 = acos(DOT_PRODUCT(Xobs,XEe)) ! angle between Xobs and XEe
+         ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang1 = int(m_ang_gg*abs(ang1-ang_min)/pi)+1
          Kappa1 = ( Rst1/(2.d0*d1) )**2
          dil1 = Rst1/d1 
 
          !------------------------------------------------------------------------
          ! Star 2
-         d2 = sqrt((D-Xemi(1))**2+Xemi(2)**2+Xemi(3)**2) 
+         d2 = norm2(Xemi-Xst2)
          call unit_vector_diff(Xemi,Xst2,3,XEe)  ! unit vector from 2nd to 1st
-         ang2 = acos(DOT_PRODUCT(Xobs,XEe)) ! angle between Xobs and XEe
+         ang2 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang2 = int(m_ang_gg*abs(ang2-ang_min)/pi)+1
          Kappa2 = ( Rst2/(2.d0*d2) )**2
          dil2 = Rst2/d2

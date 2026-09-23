@@ -1,6 +1,6 @@
 module opacity_gg
-
   use global
+  use numerical_utils, only: integrate, vector_log
   
   implicit none
   private
@@ -9,14 +9,13 @@ module opacity_gg
   contains
 
   !============================================================================
-  ! CD_opacidad_run
+  ! opacity_gg_run
   !============================================================================
   ! Calculate a matrix with the opacity coefficients at a distance of one stellar
   ! radii for different angles between the emitter-star direction and the observer, 
   ! and for different gamma-ray photon energies: tau<i>(Ef,angle)
 
     subroutine opacity_gg_run
-      use global
       implicit none
       allocate( tau1(mE_gg,m_ang_gg),tau2(mE_gg,m_ang_gg) )
       
@@ -53,6 +52,7 @@ module opacity_gg
   
   subroutine opac_gg(tau_gg,zT,rstar)
     use global
+    use numerical_utils, only: integrate, vector_log
     implicit none
     integer, parameter :: ir_max=100
     integer, parameter :: ie0_max = 20

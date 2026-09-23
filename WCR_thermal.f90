@@ -1,6 +1,7 @@
 module WCR_thermal
   ! Calculate thermal bremsstrahlung emission from the WCR.
   use global
+  use numerical_utils, only: vector_log
 
   implicit none
   private

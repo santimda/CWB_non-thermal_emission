@@ -1,5 +1,6 @@
 module CD_dist_e
   use global
+  use numerical_utils, only: vector_log
   implicit none
   
   public :: CD_dist_e_run

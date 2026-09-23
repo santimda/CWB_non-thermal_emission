@@ -1,5 +1,6 @@
 module CD_rad_br
    use global
+   use numerical_utils, only: safe_acos_dot, unit_vector_diff, vector_log
    implicit none
    
    public :: CD_rad_br_run, vec_Ebr
@@ -111,15 +112,15 @@ module CD_rad_br
          N_e = N_etot(l,:) ! Work with a vector instead of array for simplicity
          Xemi = (/ x(l),y(l),z(l) /) 
 
-         d1 = sqrt(Xemi(1)**2+Xemi(2)**2+Xemi(3)**2)
+         d1 = norm2(Xemi-Xst1)
          call unit_vector_diff(Xemi,Xst1,3,XEe) ! unit vector from 2nd to 1st
-         ang1 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang1 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang1 = int(m_ang_gg*abs(ang1-ang_min)/pi)+1
          dil1 = Rst1/d1 
 
-         d2 = sqrt((D-Xemi(1))**2+Xemi(2)**2+Xemi(3)**2)
+         d2 = norm2(Xemi-Xst2)
          call unit_vector_diff(Xemi,Xst2,3,XEe) ! unit vector from 2nd to 1st
-         ang2 = acos(DOT_PRODUCT(Xobs,XEe))! angle between Xobs and XEe
+         ang2 = safe_acos_dot(Xobs,XEe) ! angle between Xobs and XEe
          iang2 = int(m_ang_gg*abs(ang2-ang_min)/pi)+1
          dil2 = Rst2/d2
 

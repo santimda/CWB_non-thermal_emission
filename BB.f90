@@ -1,5 +1,6 @@
 module BB
   use global
+  use numerical_utils, only: vector_log
   implicit none
   
   public :: BB_run
@@ -12,8 +13,7 @@ contains
   ! Routine to calculate the black body emission from the stars
   !============================================================================
   
-  subroutine BB_run  
-    use global
+  subroutine BB_run
     implicit none
     integer, parameter :: mE_ph = 200
     real(dp) :: Eph_0, Eph_min, Eph_max, Eph_int, Eph(mE_ph)

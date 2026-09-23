@@ -1,5 +1,6 @@
 module opac_ff
   use global
+  use numerical_utils, only: integrate, vector_log
   implicit none
 
   public :: opac_ff_run, opac_ff_data_run
@@ -198,6 +199,7 @@ END module opac_ff
 
   subroutine tau_ff_calc(number,nu_ff,D)
     use global
+    use numerical_utils, only: integrate
     implicit none
     character, intent(in) :: number
     real(dp),intent(in) :: nu_ff(mE_ff),D
@@ -396,6 +398,7 @@ END module opac_ff
 
   subroutine tau_ff_data_calc(number,nu_ff)
     use global
+    use numerical_utils, only: integrate
     implicit none
     character, intent(in) :: number
     real(dp),intent(in) :: nu_ff(mnu_data)

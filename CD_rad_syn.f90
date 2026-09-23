@@ -1,5 +1,6 @@
 module CD_rad_syn
   use global
+  use numerical_utils, only: vector_log
   implicit none
   
   public :: CD_rad_syn_run, CD_rad_syn_data_run, vec_nu

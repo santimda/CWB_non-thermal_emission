@@ -1,5 +1,6 @@
 module CD_thermo
    use global
+   use numerical_utils, only: unit_vector_diff
    implicit none  
 
    public :: CD_thermo_run

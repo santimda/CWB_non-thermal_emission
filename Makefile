@@ -16,6 +16,7 @@ endif
 SOURCES = constants.f90 \
           controls.f90 \
           system_parameters.f90 \
+          numerical_utils.f90 \
           global.f90 \
           initialize.f90 \
           orbit.f90 \
@@ -66,7 +67,7 @@ apep: run.x
 	$(APEP_PYTHON) python_scripts/explore_parameter.py
 	$(APEP_PYTHON) -m python_scripts.plot_radio_seds
 
-build/test_numerical_utilities: tests/test_numerical_utilities.f90 build/constants.o build/controls.o build/system_parameters.o build/global.o | build
+build/test_numerical_utilities: tests/test_numerical_utilities.f90 build/constants.o build/numerical_utils.o | build
 	$(FC) $(FFLAGS) -J$(BUILD_DIR) -I$(BUILD_DIR) $^ -o $@
 
 clean:
